@@ -121,24 +121,22 @@ class MovieQuizViewController: UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
-    @IBAction private func noButtonClicked(_ sender: UIButton) {
+    private func handleAnswer(isYes: Bool) {
         if questionResult {
             questionResult = false
             let currentQuestion = questions[currentQuestionIndex]
-            let giveAnswer = false
-                
+            let giveAnswer = isYes
+
             showAnswerResult(isCorrect: giveAnswer == currentQuestion.correctAnswer)
         }
     }
+
+    @IBAction private func noButtonClicked(_ sender: UIButton) {
+        handleAnswer(isYes: false)
+    }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        if questionResult {
-            questionResult = false
-            let currentQuestion = questions[currentQuestionIndex]
-            let giveAnswer = true
-            
-            showAnswerResult(isCorrect: giveAnswer == currentQuestion.correctAnswer)
-        }
+        handleAnswer(isYes: true)
     }
 }
 
