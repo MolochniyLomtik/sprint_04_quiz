@@ -12,6 +12,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - Variable
     private var questionFactory: QuestionFactoryProtocol = QuestionFactory()
     
+    private var staticService: StatisticService = StatisticServiceImplementation()
+    
     private var currentQuestion: QuizQuestion?
     
     private var correctAnswers = 0
@@ -64,7 +66,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private func showNextQuestionOrResults() {
         if currentQuestionIndex == questionAmount - 1 {
-            let text = "Ваш результат: \(correctAnswers)/10"
+            let bestGameRecord = staticService.bestGame
+            let accuracyPercentage = staticService.totalAccuracy * 100
+            let text = "Ваш результат: \(correctAnswers)/10\nКоличество сыгранных игр: \(staticService.gamesCount)\nРекорд: \(bestGameRecord.correct)/10 (\(bestGameRecord.date.dateTimeString))\nСредняя точность: \(String(format: "%.2f", accuracyPercentage))%"
             let viewModel = QiuzResultsViewModel(
                 title: "Этот раунд окончен!",
                 text: text,
