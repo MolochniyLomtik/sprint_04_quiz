@@ -66,8 +66,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private func showNextQuestionOrResults() {
         if currentQuestionIndex == questionAmount - 1 {
+            staticService.store(correct: correctAnswers, total: questionAmount)
             let bestGameRecord = staticService.bestGame
-            let accuracyPercentage = staticService.totalAccuracy * 100
+            let accuracyPercentage = Double(correctAnswers) / Double(questionAmount) * 100
             let text = "Ваш результат: \(correctAnswers)/10\nКоличество сыгранных игр: \(staticService.gamesCount)\nРекорд: \(bestGameRecord.correct)/10 (\(bestGameRecord.date.dateTimeString))\nСредняя точность: \(String(format: "%.2f", accuracyPercentage))%"
             let viewModel = QiuzResultsViewModel(
                 title: "Этот раунд окончен!",

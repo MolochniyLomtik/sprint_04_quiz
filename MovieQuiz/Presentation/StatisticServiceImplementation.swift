@@ -10,7 +10,11 @@ final class StatisticServiceImplementation: StatisticService {
 
     func store(correct count: Int, total amount: Int) {
         let newGameRecord = GameRecord(correct: count, total: amount, date: Date())
-        userDefaults.set(try? JSONEncoder().encode(newGameRecord), forKey: Keys.bestGame.rawValue)
+        
+        let currentBestGame = bestGame
+        if count >= currentBestGame.correct {
+            userDefaults.set(try? JSONEncoder().encode(newGameRecord), forKey: Keys.bestGame.rawValue)
+        }
 
         let totalCorrect = userDefaults.integer(forKey: Keys.correct.rawValue) + count
         userDefaults.set(totalCorrect, forKey: Keys.correct.rawValue)
@@ -21,6 +25,7 @@ final class StatisticServiceImplementation: StatisticService {
         let gamesCount = userDefaults.integer(forKey: Keys.gamesCount.rawValue) + 1
         userDefaults.set(gamesCount, forKey: Keys.gamesCount.rawValue)
     }
+
 
     var totalAccuracy: Double {
         let totalCorrect = userDefaults.integer(forKey: Keys.correct.rawValue)
