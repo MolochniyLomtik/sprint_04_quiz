@@ -6,6 +6,6 @@ struct GameRecord: Codable {
     let date: Date
     
     func isBetterThan(_ another: GameRecord) -> Bool {
-            correct > another.correct
-        }
+        correct > another.correct
+    }
 }

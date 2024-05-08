@@ -1,8 +1,8 @@
 import UIKit
 
-private let questionAmount: Int = 10
-
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+    
+    private let questionAmount: Int = 10
     // MARK: - Outlet
     @IBOutlet private var imageView: UIImageView!
     
@@ -10,7 +10,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     @IBOutlet private var counterLabel: UILabel!
     // MARK: - Variable
-    private var questionFactory: QuestionFactoryProtocol = QuestionFactory()
+    private var questionFactory: QuestionFactoryProtocol?
     
     private var staticService: StatisticService = StatisticServiceImplementation()
     
@@ -79,7 +79,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         } else {
             currentQuestionIndex += 1
             
-            questionFactory.requestNextQuestion()
+            questionFactory?.requestNextQuestion()
         }
     }
     
@@ -87,7 +87,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         let alertModel = AlertModel(title: result.title, message: result.text, buttonText: result.buttonText) {
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
-            self.questionFactory.requestNextQuestion()
+            self.questionFactory?.requestNextQuestion()
         }
         let alertPresenter = AlertPresenter()
         alertPresenter.presentAlert(from: self, with: alertModel)
@@ -100,7 +100,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 return
             }
             let giveAnswer = isYes
-
+            
             showAnswerResult(isCorrect: giveAnswer == currentQuestion.correctAnswer)
         }
     }
@@ -120,7 +120,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     // MARK: - IBAction
-
+    
     @IBAction private func noButtonClicked(_ sender: UIButton) {
         handleAnswer(isYes: false)
     }
