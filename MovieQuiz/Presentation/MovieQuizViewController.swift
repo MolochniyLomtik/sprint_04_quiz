@@ -4,6 +4,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private let questionAmount: Int = 10
     // MARK: - Outlet
+    @IBOutlet private var activityIndicator: UIActivityIndicatorView!
+    
     @IBOutlet private var imageView: UIImageView!
     
     @IBOutlet private var textLabel: UILabel!
@@ -25,16 +27,17 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let questionFactory = QuestionFactory()
-        questionFactory.setup(delegate: self)
-        self.questionFactory = questionFactory
+        imageView.layer.cornerRadius = 20
+        let questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        staticService = StatisticServiceImplementation()
         
-        questionFactory.requestNextQuestion()
+        showLoadingIndicator()
+        questionFactory.loadData()
     }
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         let questionStep = QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionAmount)")
         return questionStep
@@ -103,6 +106,42 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             
             showAnswerResult(isCorrect: giveAnswer == currentQuestion.correctAnswer)
         }
+    }
+    
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    
+    private func hideLoadingIndicator() {
+        activityIndicator.isHidden = true
+        activityIndicator.stopAnimating()
+    }
+    
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator()
+        
+        let model = AlertModel(title: "Ошибка",
+                               message: message,
+                               buttonText: "Попробовать еще раз") { [weak self] in
+            guard let self = self else { return }
+            
+            self.currentQuestionIndex = 0
+            self.correctAnswers = 0
+            
+            self.questionFactory?.requestNextQuestion()
+        }
+        let alertPresenter = AlertPresenter()
+        alertPresenter.presentAlert(from: self, with: model)
+    }
+    
+    func didLoadDataFromServer() {
+        activityIndicator.isHidden = true
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: Error) {
+        showNetworkError(message: error.localizedDescription)
     }
     
     // MARK: - QuestionFactoryDelegate
