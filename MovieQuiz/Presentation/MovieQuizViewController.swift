@@ -16,14 +16,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private var staticService: StatisticService = StatisticServiceImplementation()
     
-    private var currentQuestion: QuizQuestion?
-    
     private var correctAnswers = 0
     
-    private var questionResult: Bool = true
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        presenter.viewController = self
         
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         staticService = StatisticServiceImplementation()
@@ -38,7 +37,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         counterLabel.text = step.questionNumber
     }
     
-    private func showAnswerResult(isCorrect: Bool) {
+    func showAnswerResult(isCorrect: Bool) {
         if isCorrect {
             correctAnswers += 1
         }
@@ -50,7 +49,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
             
-            self.questionResult = true
+            self.presenter.questionResult = true
             self.showNextQuestionOrResults()
             self.imageView.layer.borderWidth = 0
         }
@@ -83,18 +82,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
         let alertPresenter = AlertPresenter()
         alertPresenter.presentAlert(from: self, with: alertModel)
-    }
-    
-    private func handleAnswer(isYes: Bool) {
-        if questionResult {
-            questionResult = false
-            guard let currentQuestion = currentQuestion else {
-                return
-            }
-            let giveAnswer = isYes
-            
-            showAnswerResult(isCorrect: giveAnswer == currentQuestion.correctAnswer)
-        }
     }
     
     private func showLoadingIndicator() {
@@ -134,7 +121,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             return
         }
         
-        currentQuestion = question
+        presenter.currentQuestion = question
         let viewModel = presenter.convert(model: question)
         
         DispatchQueue.main.async { [weak self] in
@@ -145,11 +132,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - IBAction
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        handleAnswer(isYes: false)
+        presenter.handleAnswer(isYes: false)
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        handleAnswer(isYes: true)
+        presenter.handleAnswer(isYes: true)
     }
 }
 
