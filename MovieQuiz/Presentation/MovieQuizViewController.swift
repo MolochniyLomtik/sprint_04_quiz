@@ -12,11 +12,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     @IBOutlet private var counterLabel: UILabel!
     // MARK: - Variable
-    private var questionFactory: QuestionFactoryProtocol?
     
-    private var staticService: StatisticService = StatisticServiceImplementation()
-    
-    private var correctAnswers = 0
+    var staticService: StatisticService = StatisticServiceImplementation()
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -24,14 +21,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         presenter.viewController = self
         
-        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        presenter.questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         staticService = StatisticServiceImplementation()
         
         showLoadingIndicator()
-        questionFactory?.loadData()
+        presenter.questionFactory?.loadData()
     }
     
-    private func show(quiz step: QuizStepViewModel) {
+    func show(quiz step: QuizStepViewModel) {
         imageView.image = step.image
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
@@ -39,7 +36,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     func showAnswerResult(isCorrect: Bool) {
         if isCorrect {
-            correctAnswers += 1
+            presenter.correctAnswers += 1
         }
         
         imageView.layer.masksToBounds = true
@@ -57,10 +54,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private func showNextQuestionOrResults() {
         if presenter.isLastQuestion() {
-            staticService.store(correct: correctAnswers, total: presenter.questionAmount)
+            staticService.store(correct: presenter.correctAnswers, total: presenter.questionAmount)
             let bestGameRecord = staticService.bestGame
-            let accuracyPercentage = Double(correctAnswers) / Double(presenter.questionAmount) * 100
-            let text = "Ваш результат: \(correctAnswers)/10\nКоличество сыгранных игр: \(staticService.gamesCount)\nРекорд: \(bestGameRecord.correct)/10 (\(bestGameRecord.date.dateTimeString))\nСредняя точность: \(String(format: "%.2f", accuracyPercentage))%"
+            let accuracyPercentage = Double(presenter.correctAnswers) / Double(presenter.questionAmount) * 100
+            let text = "Ваш результат: \(presenter.correctAnswers)/10\nКоличество сыгранных игр: \(staticService.gamesCount)\nРекорд: \(bestGameRecord.correct)/10 (\(bestGameRecord.date.dateTimeString))\nСредняя точность: \(String(format: "%.2f", accuracyPercentage))%"
             let viewModel = QiuzResultsViewModel(
                 title: "Этот раунд окончен!",
                 text: text,
@@ -70,15 +67,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         } else {
             presenter.switchToNextQuestion()
             
-            questionFactory?.requestNextQuestion()
+            presenter.questionFactory?.requestNextQuestion()
         }
     }
     
-    private func show(quiz result: QiuzResultsViewModel) {
+    func show(quiz result: QiuzResultsViewModel) {
         let alertModel = AlertModel(title: result.title, message: result.text, buttonText: result.buttonText) {
             self.presenter.currentQuestionIndex = 0
-            self.correctAnswers = 0
-            self.questionFactory?.requestNextQuestion()
+            self.presenter.correctAnswers = 0
+            self.presenter.questionFactory?.requestNextQuestion()
         }
         let alertPresenter = AlertPresenter()
         alertPresenter.presentAlert(from: self, with: alertModel)
@@ -98,9 +95,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             guard let self = self else { return }
             
             self.presenter.resetQuestionIndex()
-            self.correctAnswers = 0
+            self.presenter.correctAnswers = 0
             
-            self.questionFactory?.requestNextQuestion()
+            self.presenter.questionFactory?.requestNextQuestion()
         }
         let alertPresenter = AlertPresenter()
         alertPresenter.presentAlert(from: self, with: model)
@@ -108,7 +105,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     func didLoadDataFromServer() {
         activityIndicator.isHidden = true
-        questionFactory?.requestNextQuestion()
+        presenter.questionFactory?.requestNextQuestion()
     }
     
     func didFailToLoadData(with error: Error) {
@@ -117,26 +114,17 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     // MARK: - QuestionFactoryDelegate
     func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else {
-            return
-        }
-        
-        presenter.currentQuestion = question
-        let viewModel = presenter.convert(model: question)
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: viewModel)
-        }
+        presenter.didReceiveNextQuestion(question: question)
     }
     
     // MARK: - IBAction
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        presenter.handleAnswer(isYes: false)
+        presenter.noButtonClicked()
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        presenter.handleAnswer(isYes: true)
+        presenter.yesButtonClicked()
     }
 }
 

@@ -6,6 +6,8 @@ final class MovieQuizPresenter {
     var questionResult: Bool = true
     var currentQuestion: QuizQuestion?
     weak var viewController: MovieQuizViewController?
+    var correctAnswers = 0
+    var questionFactory: QuestionFactoryProtocol?
     
     func isLastQuestion() -> Bool {
         currentQuestionIndex == questionAmount - 1
@@ -38,11 +40,43 @@ final class MovieQuizPresenter {
         }
     }
     
-    func yesButtonClicked(_ sender: UIButton) {
+    func yesButtonClicked() {
         handleAnswer(isYes: true)
     }
     
-    func noButtonClicked(_ sender: UIButton) {
+    func noButtonClicked() {
         handleAnswer(isYes: false)
+    }
+    
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question = question else {
+            return
+        }
+        
+        self.currentQuestion = question
+        let viewModel = self.convert(model: question)
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.viewController?.show(quiz: viewModel)
+        }
+    }
+    
+    private func showNextQuestionOrResults() {
+        if self.isLastQuestion() {
+            viewController?.staticService.store(correct: correctAnswers, total: self.questionAmount)
+            let bestGameRecord = viewController?.staticService.bestGame
+            let accuracyPercentage = Double(correctAnswers) / Double(self.questionAmount) * 100
+            let text = "Ваш результат: \(correctAnswers)/10\nКоличество сыгранных игр: \(String(describing: viewController?.staticService.gamesCount))\nРекорд: \(String(describing: bestGameRecord?.correct))/10 (\(String(describing: bestGameRecord?.date.dateTimeString)))\nСредняя точность: \(String(format: "%.2f", accuracyPercentage))%"
+            let viewModel = QiuzResultsViewModel(
+                title: "Этот раунд окончен!",
+                text: text,
+                buttonText: "Сыграть ещё раз")
+            
+            viewController?.show(quiz: viewModel)
+        } else {
+            self.switchToNextQuestion()
+            
+            questionFactory?.requestNextQuestion()
+        }
     }
 }
