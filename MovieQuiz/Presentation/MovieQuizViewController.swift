@@ -1,16 +1,6 @@
 import UIKit
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
-=======
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
-    private let presenter = MovieQuizPresenter()
-    
->>>>>>> parent of 2e25fe7 (Финальный проект 7 спринт)
-=======
-final class MovieQuizViewController: UIViewController {
->>>>>>> 2e25fe7bcef586e4c358b6edf42b0229499719cc
     // MARK: - Outlet
     @IBOutlet private var activityIndicator: UIActivityIndicatorView!
     

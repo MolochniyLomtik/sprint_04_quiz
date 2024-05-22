@@ -1,16 +1,14 @@
 import UIKit
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 protocol MovieQuizViewControllerProtocol: AnyObject {
     func show(quiz step: QuizStepViewModel)
     func show(quiz result: QiuzResultsViewModel)
-    
+
     func highlightImageBorder(isCorrectAnswer: Bool)
-    
+
     func showLoadingIndicator()
     func hideLoadingIndicator()
-    
+
     func showNetworkError(message: String)
 }
 
@@ -57,61 +55,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             self?.viewController?.show(quiz: viewModel)
         }
     }
-=======
-final class MovieQuizPresenter {
-    let questionAmount: Int = 10
-    var currentQuestionIndex: Int = 0
-    var questionResult: Bool = true
-    var currentQuestion: QuizQuestion?
-    weak var viewController: MovieQuizViewController?
-    var correctAnswers = 0
-    var questionFactory: QuestionFactoryProtocol?
->>>>>>> parent of 2e25fe7 (Финальный проект 7 спринт)
-=======
-final class MovieQuizPresenter: QuestionFactoryDelegate {
-    private var staticService: StatisticService!
-    var questionFactory: QuestionFactoryProtocol?
-    private weak var viewController: MovieQuizViewController?
-    
-    private let questionAmount: Int = 10
-    private var currentQuestionIndex: Int = 0
-    var questionResult: Bool = true
-    private var currentQuestion: QuizQuestion?
-    private var correctAnswers = 0
-    
-    init(viewController: MovieQuizViewController) {
-        self.viewController = viewController
-        
-        staticService = StatisticServiceImplementation()
-        
-        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
-        questionFactory?.loadData()
-        viewController.showLoadingIndicator()
-    }
-    
-    func didLoadDataFromServer() {
-        viewController?.hideLoadingIndicator()
-        questionFactory?.requestNextQuestion()
-    }
-    
-    func didFailToLoadData(with error: Error) {
-        let message = error.localizedDescription
-        viewController?.showNetworkError(message: message)
-    }
-    
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else {
-            return
-        }
-        
-        currentQuestion = question
-        let viewModel = self.convert(model: question)
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.viewController?.show(quiz: viewModel)
-        }
-    }
->>>>>>> 2e25fe7bcef586e4c358b6edf42b0229499719cc
     
     func isLastQuestion() -> Bool {
         currentQuestionIndex == questionAmount - 1
