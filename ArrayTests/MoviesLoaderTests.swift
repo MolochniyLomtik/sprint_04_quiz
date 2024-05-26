@@ -13,7 +13,7 @@ class MovieLoaderTests: XCTestCase {
         loader.loadMovies { result in
             switch result {
             case .success(let movies):
-                XCTAssertEqual(movies.items.count, 2)
+                XCTAssertEqual(movies.items.count, 250)
                 expectation.fulfill()
             case .failure(_):
                 XCTFail("Unexpected failure")

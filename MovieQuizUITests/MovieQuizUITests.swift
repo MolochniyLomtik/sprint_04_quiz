@@ -11,19 +11,19 @@ final class MovieQuizUITests: XCTestCase {
         
         continueAfterFailure = false
     }
-
+    
     override func tearDownWithError() throws {
         try super.tearDownWithError()
         
         app.terminate()
         app = nil
     }
-
+    
     func testExample() throws {
         let app = XCUIApplication()
         app.launch()
     }
-
+    
     func testLaunchPerformance() throws {
         if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
             measure(metrics: [XCTApplicationLaunchMetric()]) {
@@ -99,5 +99,5 @@ final class MovieQuizUITests: XCTestCase {
         
         XCTAssertFalse(alert.exists)
         XCTAssertTrue(indexLabel.label == "1/10")
-    }
+    } 
 }
