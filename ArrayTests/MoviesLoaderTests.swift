@@ -5,7 +5,7 @@ class MovieLoaderTests: XCTestCase {
     func testSuccessLoading() throws {
         //Given
         let stubNetworkClient = StubNetworkClient(emulateError: false)
-        let loader = MoviesLoader()
+        let loader = MoviesLoader(networkClient: stubNetworkClient)
         
         //When
         let expectation = expectation(description: "Loading expectation")
@@ -13,7 +13,7 @@ class MovieLoaderTests: XCTestCase {
         loader.loadMovies { result in
             switch result {
             case .success(let movies):
-                XCTAssertEqual(movies.items.count, 250)
+                XCTAssertEqual(movies.items.count, 2)
                 expectation.fulfill()
             case .failure(_):
                 XCTFail("Unexpected failure")
